@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>零跑智控 iOS 原生版 (Lingpao) — SwiftUI + Metal GPU 零跑车控开源客户端</title>
+  <meta name="description" content="零跑智控 iOS 纯原生开源重构版（Lingpao）：基于 SwiftUI、Metal GPU 与 CoreBluetooth 打造，支持 12 款全系零跑车型、33 色官漆实时着染、一镜到底共享车模舞台、灵动岛充电实况、桌面交互小组件与近场蓝牙数字钥匙。" />
+  <meta name="keywords" content="零跑智控,零跑汽车,iOS 客户端,SwiftUI,Metal GPU,CoreBluetooth,零三方,Lingpao,WidgetKit,ActivityKit,灵动岛,开源项目" />
+  <meta name="author" content="Peanut88 (nnkk000023)" />
+  <meta name="theme-color" content="#070A10" />
+  <link rel="canonical" href="https://nnkk000023.github.io/lingpaozhikong-ios/" />
+
+  <!-- Google Search Console Verification: 如需验证，将 google-site-verification meta 标签粘贴在此处 -->
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:site_name" content="零跑智控 iOS 原生版" />
+  <meta property="og:title" content="零跑智控 iOS 原生版 (Lingpao) — 纯 Swift + Metal 原生车控客户端" />
+  <meta property="og:description" content="120Hz 共享车模舞台、Metal 33 色官方车漆与五态冷暖座舱气流、灵动岛充电实况、4×2 交互桌面小组件与国密 SM3/SM4 安全底座。MIT 协议开源。" />
+  <meta property="og:url" content="https://nnkk000023.github.io/lingpaozhikong-ios/" />
+  <meta property="og:image" content="https://nnkk000023.github.io/lingpaozhikong-ios/images/01-hero-overview.webp" />
+  <meta property="og:image:width" content="2560" />
+  <meta property="og:image:height" content="1440" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="零跑智控 iOS 原生版 (Lingpao)" />
+  <meta name="twitter:description" content="基于 SwiftUI + Metal GPU + CoreBluetooth 的纯原生零跑汽车 iOS 开源客户端。" />
+  <meta name="twitter:image" content="https://nnkk000023.github.io/lingpaozhikong-ios/images/01-hero-overview.webp" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "零跑智控 iOS 原生版 (Lingpao)",
+    "operatingSystem": "iOS 17.0+",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "基于 SwiftUI、Metal GPU 与 CoreBluetooth 打造的个人自用零跑汽车 iOS 原生开源客户端，支持 12 款车型、33 色官方车漆实时着染、共享车模动效舞台、灵动岛实时充电监控与桌面交互小组件。",
+    "url": "https://nnkk000023.github.io/lingpaozhikong-ios/",
+    "codeRepository": "https://github.com/nnkk000023/lingpaozhikong-ios",
+    "programmingLanguage": ["Swift", "Metal"],
+    "license": "https://opensource.org/licenses/MIT",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #070A10;
+      --bg-elev: #0D121C;
+      --card: rgba(255, 255, 255, 0.042);
+      --card-hover: rgba(255, 255, 255, 0.068);
+      --border: rgba(255, 255, 255, 0.095);
+      --ink: #F4F7FC;
+      --muted: #9AA4B8;
+      --dim: #6E788C;
+      --green: #1FA463;
+      --green-bright: #28B872;
+      --green-soft: #72D5A2;
+      --blue: #38A8FF;
+      --orange: #F59E42;
+      --purple: #A688FA;
+      --max-w: 1160px;
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    body {
+      overflow-x: clip;
+      max-width: 100%;
+      background:
+        radial-gradient(900px 560px at 14% 4%, rgba(31, 164, 99, 0.14), transparent 68%),
+        radial-gradient(840px 520px at 88% 8%, rgba(56, 168, 255, 0.11), transparent 70%),
+        var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Top Nav */
+    .nav-wrap {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: rgba(7, 10, 16, 0.78);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .nav {
+      max-width: var(--max-w); margin: 0 auto; padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 16px; font-weight: 800; letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .brand-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--green-bright);
+      box-shadow: 0 0 14px var(--green-bright);
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 22px;
+      font-size: 13.5px; color: var(--muted); font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 999px;
+      background: var(--green); color: #fff;
+      font-size: 13px; font-weight: 700;
+      box-shadow: 0 6px 20px rgba(31, 164, 99, 0.34);
+      transition: transform 0.18s ease, background 0.18s ease;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--green-bright); transform: translateY(-1px); }
+
+    /* Container */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero { padding: 64px 0 42px; text-align: center; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(31, 164, 99, 0.13);
+      border: 1px solid rgba(40, 184, 114, 0.36);
+      color: var(--green-soft); font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em;
+    }
+    .hero h1 {
+      margin-top: 22px;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800; line-height: 1.14; letter-spacing: -0.03em;
+    }
+    .hero h1 .grad {
+      display: block; margin-top: 6px;
+      font-size: clamp(24px, 3.6vw, 40px);
+      background: linear-gradient(90deg, #F4F7FC 0%, #8CE2B5 52%, #28B872 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      max-width: 780px; margin: 18px auto 0;
+      font-size: 16.5px; color: var(--muted); line-height: 1.72;
+    }
+    .hero-actions {
+      margin-top: 28px;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: var(--green); color: #fff; font-size: 15px; font-weight: 700;
+      box-shadow: 0 12px 32px rgba(31, 164, 99, 0.35);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .btn-primary:hover { background: var(--green-bright); transform: translateY(-2px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 24px; border-radius: 999px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--ink); font-size: 15px; font-weight: 600;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .btn-ghost:hover { background: var(--card-hover); transform: translateY(-2px); }
+
+    .metrics {
+      max-width: 820px; margin: 36px auto 0;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+    }
+    .metric {
+      min-width: 0;
+      padding: 16px 14px; border-radius: 16px;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .metric-val { font-size: 22px; font-weight: 800; color: var(--green-soft); }
+    .metric-lbl { margin-top: 3px; font-size: 12px; color: var(--muted); }
+
+    .hero-shot {
+      margin-top: 40px; border-radius: 24px; overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 36px 90px rgba(0, 0, 0, 0.65), 0 0 60px rgba(31, 164, 99, 0.12);
+      cursor: zoom-in; background: #06090F;
+    }
+    .hero-shot img { display: block; width: 100%; height: auto; }
+
+    /* Credit Banner */
+    .credit-box {
+      margin-top: 48px; padding: 26px 30px; border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(31, 164, 99, 0.10) 0%, rgba(56, 168, 255, 0.06) 100%);
+      border: 1px solid rgba(40, 184, 114, 0.30);
+      display: flex; align-items: flex-start; gap: 18px;
+    }
+    .credit-badge {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 12px;
+      background: rgba(31, 164, 99, 0.18); color: var(--green-soft);
+      font-size: 13px; font-weight: 800;
+    }
+    .credit-body h2 { font-size: 19px; font-weight: 800; color: #fff; }
+    .credit-body p { margin-top: 6px; font-size: 14.5px; color: #C2CBD9; line-height: 1.72; }
+    .credit-body strong { color: #7EE3AF; }
+
+    /* Section Headings */
+    .sec { padding: 68px 0 12px; }
+    .sec-head { margin-bottom: 30px; }
+    .sec-eyebrow {
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--green-bright);
+    }
+    .sec-title {
+      margin-top: 6px; font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800; letter-spacing: -0.02em;
+    }
+    .sec-desc { margin-top: 8px; font-size: 15px; color: var(--muted); max-width: 720px; }
+
+    /* Showcase Stack */
+    .showcase-list { display: flex; flex-direction: column; gap: 44px; }
+    .showcase-item {
+      border-radius: 24px; padding: 26px;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .showcase-meta {
+      display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+      gap: 14px; margin-bottom: 20px;
+    }
+    .showcase-meta h3 { font-size: 22px; font-weight: 800; letter-spacing: -0.015em; }
+    .showcase-meta p { margin-top: 6px; font-size: 14px; color: var(--muted); max-width: 760px; }
+    .pill-tech {
+      padding: 6px 12px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.055); border: 1px solid var(--border);
+      font-size: 11.5px; color: var(--green-soft); white-space: nowrap;
+    }
+    .shot-frame {
+      position: relative; border-radius: 16px; overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow: 0 22px 54px rgba(0, 0, 0, 0.48);
+      cursor: zoom-in; background: #0A0D14;
+    }
+    .shot-frame img {
+      display: block; width: 100%; height: auto;
+      transition: transform 0.35s ease;
+    }
+    .shot-frame:hover img { transform: scale(1.01); }
+    .zoom-hint {
+      position: absolute; right: 14px; bottom: 14px;
+      padding: 5px 11px; border-radius: 999px;
+      background: rgba(7, 10, 16, 0.78); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 11px; color: #E2E8F0; pointer-events: none;
+    }
+
+    /* Models Grid */
+    .models-grid {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+    }
+    .model-card {
+      min-width: 0;
+      padding: 18px; border-radius: 18px;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .model-top { display: flex; align-items: center; justify-content: space-between; }
+    .model-name { font-size: 18px; font-weight: 800; color: #fff; }
+    .model-type {
+      padding: 3px 9px; border-radius: 999px;
+      background: rgba(31, 164, 99, 0.15); color: var(--green-soft);
+      font-size: 11px; font-weight: 700;
+    }
+    .model-desc { margin-top: 8px; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+    /* Quick Start */
+    .steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .step-card {
+      min-width: 0;
+      padding: 22px; border-radius: 20px;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .step-num { font-size: 12px; font-weight: 800; color: var(--green-bright); letter-spacing: 0.08em; }
+    .step-card h3 { margin-top: 8px; font-size: 17px; font-weight: 800; }
+    .step-card p { margin-top: 8px; font-size: 13.5px; color: var(--muted); line-height: 1.62; }
+    pre.cmd {
+      max-width: 100%;
+      margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+      background: #05070C; border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px; color: #C9F3DC; overflow-x: auto; line-height: 1.55;
+      white-space: pre-wrap; word-break: break-word;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 80px; border-top: 1px solid var(--border);
+      padding: 36px 0 48px; color: var(--muted); font-size: 13px;
+    }
+    .foot-inner {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .foot-links { display: flex; flex-wrap: wrap; gap: 20px; }
+    .foot-links a:hover { color: var(--green-soft); }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(4, 6, 10, 0.92);
+      backdrop-filter: blur(10px);
+      display: none; align-items: center; justify-content: center;
+      padding: 24px; cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 96vw; max-height: 90vh; border-radius: 14px;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .lightbox-cap {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      padding: 8px 16px; border-radius: 999px;
+      background: rgba(15, 20, 30, 0.88); border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #E2E8F0; font-size: 13px;
+    }
+
+    @media (max-width: 920px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .models-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .steps-grid { grid-template-columns: minmax(0, 1fr); }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 560px) {
+      .nav { padding: 12px 16px; }
+      .container { padding: 0 16px; }
+      .hero { padding-top: 36px; }
+      .eyebrow { font-size: 10px; padding: 5px 11px; letter-spacing: 0.06em; max-width: 100%; }
+      .hero-sub { font-size: 14.5px; }
+      .btn-primary, .btn-ghost { padding: 11px 18px; font-size: 13.5px; }
+      .credit-box { flex-direction: column; padding: 20px; }
+      .showcase-item { padding: 16px; border-radius: 18px; }
+      .pill-tech { white-space: normal; font-size: 11px; }
+      .models-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="#top">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>零跑智控 iOS</span>
+      </a>
+      <div class="nav-links">
+        <a href="#showcase">视觉与架构</a>
+        <a href="#models">全系车型</a>
+        <a href="#quickstart">快速运行</a>
+        <a href="#credits">特别致谢</a>
+      </div>
+      <a class="nav-cta" href="https://github.com/nnkk000023/lingpaozhikong-ios" target="_blank" rel="noopener">
+        GitHub 源码 ↗
+      </a>
+    </nav>
+  </header>
+
+  <main id="top" class="container">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow mono">LINGPAO iOS · OPEN SOURCE · MIT LICENSE</div>
+      <h1>
+        零跑智控 for iOS
+        <span class="grad">纯原生重构，重塑优雅智控体验</span>
+      </h1>
+      <p class="hero-sub">
+        基于 SwiftUI、Metal GPU 与 CoreBluetooth 深度打造的个人自用 iOS 原生控车开源客户端。
+        120Hz 丝滑共享车模舞台、33 色官方车漆实时着染、灵动岛充电实况与 4×2 交互桌面小组件，零广告纯粹体验。
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="https://github.com/nnkk000023/lingpaozhikong-ios" target="_blank" rel="noopener">
+          前往 GitHub 仓库查看源码 ↗
+        </a>
+        <a class="btn-ghost" href="#quickstart">快速编译运行</a>
+        <a class="btn-ghost" href="#showcase">浏览 6 张高清剖析图</a>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-val mono">12 款</div>
+          <div class="metric-lbl">全系车型与多排布局</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val mono">33 色</div>
+          <div class="metric-lbl">Rec.709 金属车漆着染</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val mono">90+ 信号</div>
+          <div class="metric-lbl">H30 遥测与 21 类指令</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val mono">100% Swift</div>
+          <div class="metric-lbl">SM3/SM4 国密 &amp; Keychain</div>
+        </div>
+      </div>
+
+      <div class="hero-shot" data-zoom="images/01-hero-overview.webp" data-caption="01 · 主视觉封面：三台 iPhone 17 Pro 展示浅色车况、深色星煜紫与冷暖座舱">
+        <img src="images/01-hero-overview.webp" alt="零跑智控 iOS 原生版主视觉封面宣传图" width="2560" height="1440" />
+      </div>
+    </section>
+
+    <!-- Credits -->
+    <section id="credits" class="credit-box" aria-label="特别致谢">
+      <div class="credit-badge mono">SPECIAL THANKS</div>
+      <div class="credit-body">
+        <h2>🙏 特别致谢「零三方」作者：小红书 @nomad</h2>
+        <p>
+          本项目深受 Android 端优秀第三方车控应用「零三方」的启发，由衷感谢原作者 <strong>小红书 @nomad</strong>。
+          感谢 <strong>@nomad</strong> 在产品交互设计、共享车模座舱可视化、Rec.709 金属漆面着染、全系高精度车型资产体系与车控通信协议研究上的卓越工作与无私分享。本仓库在此灵感基础上采用纯 Swift + SwiftUI + Metal 完成 iOS 原生开源重构。
+        </p>
+      </div>
+    </section>
+
+    <!-- Showcase -->
+    <section id="showcase" class="sec">
+      <div class="sec-head">
+        <div class="sec-eyebrow mono">DESIGN · MOTION · METAL · ARCHITECTURE</div>
+        <h2 class="sec-title">五大核心技术与设计亮点全解</h2>
+        <p class="sec-desc">点击任意高清大图即可全屏放大审阅细节（均基于 iPhone 17 Pro 真实运行截图合成）。</p>
+      </div>
+
+      <div class="showcase-list">
+        <article class="showcase-item">
+          <div class="showcase-meta">
+            <div>
+              <h3>01 · 黄金空间布局与浅深双生语义美学</h3>
+              <p>176pt 左侧车况列与右侧俯视车模精准分工；自适应多车/单车顶栏、BalancedActionGrid 自定义宫格与 matchedGeometryEffect 悬浮胶囊导航栏一气呵成。</p>
+            </div>
+            <span class="pill-tech mono">LingpaoPalette · Theme.swift</span>
+          </div>
+          <div class="shot-frame" data-zoom="images/02-layout-architecture.webp" data-caption="02 · 现代空间布局与 LingpaoPalette 双生语义色板">
+            <img src="images/02-layout-architecture.webp" alt="黄金空间布局与浅深双生语义色板" width="2560" height="1440" loading="lazy" />
+            <span class="zoom-hint">点击放大查看</span>
+          </div>
+        </article>
+
+        <article class="showcase-item">
+          <div class="showcase-meta">
+            <div>
+              <h3>02 · 一镜到底共享车模舞台与物理动效</h3>
+              <p>从车况总览到沉浸座舱、控车坞上滑缩小横置（-90°）再到充电专页，统一 240×560 归一化矩阵与 interpolatingSpring 弹簧曲线驱使四态平滑转场。</p>
+            </div>
+            <span class="pill-tech mono">InteractiveCarStageView · CarPose</span>
+          </div>
+          <div class="shot-frame" data-zoom="images/03-stage-pose-animation.webp" data-caption="03 · CarPose 四态连贯物理动效演进">
+            <img src="images/03-stage-pose-animation.webp" alt="共享车模舞台与物理动效演进" width="2560" height="1440" loading="lazy" />
+            <span class="zoom-hint">点击放大查看</span>
+          </div>
+        </article>
+
+        <article class="showcase-item">
+          <div class="showcase-meta">
+            <div>
+              <h3>03 · Metal GPU 实时着染与五态冷暖空调流场</h3>
+              <p>Rec.709 金属车漆 Compute Kernel 保留车身折线高光；TimelineView 驱动双正弦冷暖气流波纹；2.5px 严限内部高斯羽化结合 W3C Color/Screen 呈现真皮通风加热。</p>
+            </div>
+            <span class="pill-tech mono">CarRendererShaders.metal</span>
+          </div>
+          <div class="shot-frame" data-zoom="images/04-metal-shader-cabin.webp" data-caption="04 · Metal GPU 实时车漆着染与五态流体风场">
+            <img src="images/04-metal-shader-cabin.webp" alt="Metal GPU 实时着色与冷暖座舱渲染" width="2560" height="1440" loading="lazy" />
+            <span class="zoom-hint">点击放大查看</span>
+          </div>
+        </article>
+
+        <article class="showcase-item">
+          <div class="showcase-meta">
+            <div>
+              <h3>04 · 深度融入 Apple 原生生态，零广告纯享优势</h3>
+              <p>ActivityKit 灵动岛充电实况、WidgetKit 2×2 / 4×2 桌面直控组件、Siri 与 Action Button、CoreBluetooth 后台保活蓝牙钥匙以及 Swift Charts 停充功率曲线与周能耗分析。</p>
+            </div>
+            <span class="pill-tech mono">ActivityKit · WidgetKit · AppIntents</span>
+          </div>
+          <div class="shot-frame" data-zoom="images/05-ios-advantages-ecosystem.webp" data-caption="05 · iOS 灵动岛、桌面小组件、蓝牙钥匙与 Swift Charts">
+            <img src="images/05-ios-advantages-ecosystem.webp" alt="iOS 原生生态融合与核心优势" width="2560" height="1440" loading="lazy" />
+            <span class="zoom-hint">点击放大查看</span>
+          </div>
+        </article>
+
+        <article class="showcase-item">
+          <div class="showcase-meta">
+            <div>
+              <h3>05 · 解耦三层原生架构与国密安全底座</h3>
+              <p>独立跨平台 Swift Package（LingpaoCore）承载 90+ H30 信号解码、TokenCoordinator actor 并发续期与纯 Swift 国密 SM3/SM4、ECDH P-256；凭据全量隔离于系统 Keychain。</p>
+            </div>
+            <span class="pill-tech mono">LingpaoCore · SM3/SM4 · Keychain</span>
+          </div>
+          <div class="shot-frame" data-zoom="images/06-tech-architecture.webp" data-caption="06 · 三层解耦工程架构与国密安全底座">
+            <img src="images/06-tech-architecture.webp" alt="三层解耦工程架构与安全底座" width="2560" height="1440" loading="lazy" />
+            <span class="zoom-hint">点击放大查看</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Supported Models -->
+    <section id="models" class="sec">
+      <div class="sec-head">
+        <div class="sec-eyebrow mono">12 VEHICLES · 33 OFFICIAL PAINTS</div>
+        <h2 class="sec-title">内置全系 12 款零跑车型与高精度资产</h2>
+        <p class="sec-desc">统一正交俯视、透视座舱与 3/4 主视觉图库，覆盖微车、两厢、轿车、SUV 与旗舰 MPV。</p>
+      </div>
+      <div class="models-grid">
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">C16</span><span class="model-type">SUV · 5/6座</span></div>
+          <div class="model-desc">专属姿态适配、主驾通风加热 FX 贴图、方向盘/灯光/折镜完整交互。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">D19</span><span class="model-type">SUV · 6/7座</span></div>
+          <div class="model-desc">支持六座 (2+2+2) 与七座 (2+3+2) 双套独立座舱与座椅热区映射。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">D99</span><span class="model-type">MPV · 7座</span></div>
+          <div class="model-desc">支持电动左右侧滑门控制与二排独立通道视觉识别。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">C11 / C10</span><span class="model-type">SUV · 5座</span></div>
+          <div class="model-desc">后排连通长椅智能分区，支持松岚灰、雾凇米等官方专属车漆。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">B10 / A10</span><span class="model-type">SUV · 5座</span></div>
+          <div class="model-desc">风禾青、海苔绿、橡果棕等年轻化色彩体系精准着色。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">C01 / B01</span><span class="model-type">轿车 · 5座</span></div>
+          <div class="model-desc">流畅轿车轮廓透明包围盒归一化适配与金属高光反射保留。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">Lafa5 / A05</span><span class="model-type">两厢 · 5座</span></div>
+          <div class="model-desc">兼容 B05 车型别名识别，内置电掣黄、风驰橙等潮流色库。</div>
+        </div>
+        <div class="model-card">
+          <div class="model-top"><span class="model-name">T03</span><span class="model-type">微车 · 4座</span></div>
+          <div class="model-desc">轻量车身轮廓自适应与经典四座座舱温控显示。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section id="quickstart" class="sec">
+      <div class="sec-head">
+        <div class="sec-eyebrow mono">GETTING STARTED</div>
+        <h2 class="sec-title">快速克隆与真机运行</h2>
+        <p class="sec-desc">无需配置复杂第三方依赖，打开 Xcode 即可运行；内置离线完整体验模式，无账号也能立刻上手。</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div>
+            <div class="step-num mono">STEP 01</div>
+            <h3>克隆仓库并打开工程</h3>
+            <p>需要 macOS 14+ 与 Xcode 16+（若首次编译 Metal 着色器提示缺少工具链，请先下载 MetalToolchain）。</p>
+          </div>
+          <pre class="cmd mono">git clone https://github.com/nnkk000023/lingpaozhikong-ios.git
+cd lingpaozhikong-ios
+open Lingpao.xcodeproj</pre>
+        </div>
+
+        <div class="step-card">
+          <div>
+            <div class="step-num mono">STEP 02</div>
+            <h3>配置个人 Apple ID 签名</h3>
+            <p>在 Xcode 分别选中 LingpaoApp 与 LingpaoWidgets，设置你的个人 Team 与同前缀 Bundle ID，并核对 App Group。</p>
+          </div>
+          <pre class="cmd mono"># 验证核心包单元测试（5 大套件全覆盖）
+cd LingpaoCore
+swift test</pre>
+        </div>
+
+        <div class="step-card">
+          <div>
+            <div class="step-num mono">STEP 03</div>
+            <h3>三种无门槛体验 / 登录方式</h3>
+            <p>支持「离线体验模式」直接把玩 12 款车型与 Metal 渲染；亦支持导入原始 Auth 凭据或手机号 + 极验 v4 登录。</p>
+          </div>
+          <pre class="cmd mono"># 增删文件后一键重建工程
+DEVELOPER_DIR=/Library/Developer/CommandLineTools \
+  python3 Scripts/generate_xcodeproj.py</pre>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot-inner">
+        <div>
+          <strong>零跑智控 iOS 原生版 (Lingpao)</strong> · 基于 MIT License 开源 · 致谢「零三方」作者 <strong>小红书 @nomad</strong> · 非官方学习研究项目，凭据仅本地 Keychain 加密存储。
+        </div>
+        <div class="foot-links mono">
+          <a href="https://github.com/nnkk000023/lingpaozhikong-ios" target="_blank" rel="noopener">GitHub Repo</a>
+          <a href="https://github.com/nnkk000023/lingpaozhikong-ios/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+          <a href="https://github.com/nnkk000023/lingpaozhikong-ios/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="图片放大预览">
+    <img id="lightbox-img" src="" alt="" />
+    <div class="lightbox-cap" id="lightbox-cap"></div>
+  </div>
+
+  <script>
+    (function () {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightbox-img');
+      const lbCap = document.getElementById('lightbox-cap');
+
+      document.querySelectorAll('[data-zoom]').forEach(function (el) {
+        el.addEventListener('click', function () {
+          lbImg.src = el.getAttribute('data-zoom');
+          lbImg.alt = el.getAttribute('data-caption') || '';
+          lbCap.textContent = el.getAttribute('data-caption') || '点击任意空白或按 Esc 关闭';
+          lb.classList.add('open');
+        });
+      });
+
+      function closeLb() {
+        lb.classList.remove('open');
+        lbImg.src = '';
+      }
+      lb.addEventListener('click', closeLb);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeLb();
+      });
+    })();
+  </script>
+</body>
+</html>
