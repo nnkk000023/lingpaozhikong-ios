@@ -1,0 +1,30 @@
+# macOS & Finder
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Xcode & SwiftPM
+xcuserdata/
+**/xcuserdata/
+*.xcuserstate
+*.moved-aside
+DerivedData/
+.build/
+LingpaoCore/.build/
+.swiftpm/xcode/xcuserdata/
+.swiftpm/configuration/registries.json
+*.xcresult
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Optional 3rd-party binary frameworks & personal local configs
+**/SmAntiFraud.xcframework
+*.p12
+*.mobileprovision
+*.env
+.env.*
